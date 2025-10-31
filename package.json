@@ -16,7 +16,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "recharts": "2.13.3",
-    "swr": "2.2.5"   // ← add this line; ensure the comma on the previous line
+    "swr": "2.2.5"
   },
   "devDependencies": {
     "prisma": "5.20.0",
