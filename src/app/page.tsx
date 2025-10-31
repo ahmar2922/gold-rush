@@ -1,50 +1,28 @@
-export const dynamic = "force-dynamic";
+"use client";
 
+import useSWR from "swr";
 import { format } from "date-fns";
 
-type Rec = {
-  ts: string | Date;
-  gcs: number;
-  regime: string;
-  recommendation: "BUY" | "HOLD" | "SELL";
-  confidence: number;
-  explanation?: {
-    real_rate_z?: number;
-    usd_z?: number;
-    stress_z?: number;
-  };
-} | null;
+const fetcher = (url: string) => fetch(url).then(r => r.json());
 
-async function getRec(): Promise<Rec> {
-  const base = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
-  try {
-    const res = await fetch(`${base}/api/recommendation`, { cache: "no-store" });
-    if (!res.ok) return null;
-    return (await res.json()) as Rec;
-  } catch {
-    return null;
-  }
-}
-
-export default async function Home() {
-  const rec = await getRec();
+export default function Home() {
+  const { data: rec } = useSWR("/api/recommendation", fetcher, { refreshInterval: 30000 });
 
   return (
     <main className="p-6 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Gold Rush</h1>
-
-      {!rec ? (
+      {!rec?.ts ? (
         <div>No data yet. Visit <code>/api/cron/daily</code> once to populate.</div>
       ) : (
-        <div className="p-4 rounded-2xl" style={{ background: "#fff", boxShadow: "0 1px 8px rgba(0,0,0,0.06)" }}>
+        <div className="p-4 rounded-2xl" style={{ background: "#fff", boxShadow: "0 1px 8px rgba(0,0,0,0.06)"}}>
           <div style={{ fontSize: 13, color: "#334155" }}>
             {format(new Date(rec.ts), "PPPP")}
           </div>
           <div style={{ display: "flex", gap: 12, alignItems: "baseline", marginTop: 6 }}>
             <div style={{
-              fontSize: 28, fontWeight: 700,
-              color: rec.recommendation === "BUY" ? "#16a34a" :
-                     rec.recommendation === "SELL" ? "#dc2626" : "#0f172a"
+              fontSize: 28,
+              fontWeight: 700,
+              color: rec.recommendation === "BUY" ? "#16a34a" : rec.recommendation === "SELL" ? "#dc2626" : "#0f172a"
             }}>
               {rec.recommendation}
             </div>
