@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SeriesMeta {
+  id          Int           @id @default(autoincrement())
+  code        String        @unique
+  description String?
+  source      String?
+  values      SeriesValue[] // one-to-many
+}
+
+model SeriesValue {
+  code   String
+  ts     DateTime
+  value  Float
+
+  // back relation to SeriesMeta by 'code'
+  series SeriesMeta @relation(fields: [code], references: [code], onDelete: Cascade)
+
+  @@id([code, ts])
+  @@index([code, ts])
+}
+
+model Signal {
+  name     String
+  ts       DateTime
+  value    Float
+  rawValue Float?
+
+  @@id([name, ts])
+  @@index([name, ts])
+}
+
+model GcsDaily {
+  ts             DateTime @id
+  gcs            Float
+  regime         String
+  recommendation String
+  confidence     Float
+  explanation    Json
+}
