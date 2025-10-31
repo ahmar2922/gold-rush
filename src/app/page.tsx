@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic"; // never pre-render; always run on the server
+export const dynamic = "force-dynamic";
 
 import { format } from "date-fns";
 
@@ -16,11 +16,7 @@ type Rec = {
 } | null;
 
 async function getRec(): Promise<Rec> {
-  // Build an absolute URL that works on Vercel and locally
-  const base =
-    process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
+  const base = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
   try {
     const res = await fetch(`${base}/api/recommendation`, { cache: "no-store" });
     if (!res.ok) return null;
